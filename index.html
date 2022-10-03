@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="http://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+        <link href="style.css" rel="stylesheet">
+        <title> Cable cam </title>
+    </head>
+
+    <body style="margin-left: 25px;">
+        <h1> Cable cam </h1>
+        <p> This is the guide that is used in the following video to make a cable cam with ODrive / ODESC / ... : </p>
+        <div>
+            <h3> Parts list </h3>
+            <ul style="margin-bottom: 35px;">
+                <li> ODrive / ODESC / ... </li>
+                <li> BLDC motor </li>
+                <li> Encoder </li>
+                <li> Battery </li>
+                <li> DJI Osmo (mobile) </li>
+                <li> 3D printed parts (<a download href="parts.zip">download my files here</a>) </li>
+                <li> RC transmitter and receiver / 2 Arduinos + 2 NRF24L01s + joystick / ...</li>
+            </ul>
+        </div>
+        <div>
+            <h3> ODrive / ODESC / ... settings </h3>
+            <p> If you have not worked with ODrive / ODESC / ... before, I recommend following my <a href="https://stijnsprojects.github.io/Getting-started-Odrive-V3/" target="_blank" rel="noopener noreferrer">getting started guide</a>.</p>
+            <p> Configure the basic settings shown in the getting started guide. </p>
+            <pre><code>odrv0.axis0.encoder.config.cpr = </code></pre>
+            <pre><code>odrv0.axis0.motor.config.pole_pairs = </code></pre>
+            <pre><code>odrv0.axis0.motor.config.current_lim = </code></pre>
+            <pre><code>odrv0.axis0.controller.config.vel_limit = </code></pre>
+            <p> If you are using the latest firmware version. </p>
+            <pre><code>odrv0.config.enable_brake_resistor = True</code></pre>
+            <p> Because this project uses a battery, you can also use <a href="https://discourse.odriverobotics.com/t/how-to-enable-regenerative-breaking/6795" target="_blank" rel="noopener noreferrer">regenerative braking</a>. </p>
+            <p> If you don't have the motor calibration saved using motor.config.pre_calibrated, you have to calibrate at startup.</p>
+            <pre><code>odrv0.axis0.config.startup_motor_calibration = True</code></pre>
+            <pre><code>odrv0.axis0.config.startup_encoder_offset_calibration = True</code></pre>
+            <pre><code>odrv0.axis0.config.startup_closed_loop_control = True</code></pre>
+            <pre><code>odrv0.save_configuration()</code></pre>
+            <pre><code>odrv0.reboot()</code></pre>
+            <br>
+            <p> There are a number of options to get this thing working, if you want basic control, you can use velocity control in combination with an RC PWM input signal. </p>
+            <pre><code>odrv0.axis0.controller.config.control_mode = CONTROL_MODE_VELOCITY_CONTROL</code></pre>
+            <p> Set the RC PWM input mode to velocity. </p>
+            <pre><code>odrv0.config.gpio1_pwm_mapping.endpoint = odrv0.axis0.controller._input_vel_property</code></pre>
+            <p> If you are using the latest firmware version. </p>
+            <pre><code>odrv0.config.gpio1_mode = GPIO_MODE_PWM</code></pre>
+            <p> You can tune the neutral position on your RC transmitter or you can make the min and max not inversely equal (for example use -15.2 and 15).</p>
+            <pre><code>odrv0.config.gpio1_pwm_mapping.min = -15</code></pre>
+            <pre><code>odrv0.config.gpio1_pwm_mapping.max = 15</code></pre>
+            <pre><code>odrv0.save_configuration()</code></pre>
+            <pre><code>odrv0.reboot()</code></pre>
+            <br>
+            <p> Another option is to use position control in combination with an RC PWM input signal (with a linear potentiometer for example). </p>
+            <pre><code>odrv0.axis0.controller.config.control_mode = CONTROL_MODE_POSITION_CONTROL</code></pre>
+            <p> Set the RC PWM input mode to position. </p>
+            <pre><code>odrv0.config.gpio1_pwm_mapping.endpoint = odrv0.axis0.controller._input_pos_property</code></pre>
+            <p> If you are using the latest firmware version. </p>
+            <pre><code>odrv0.config.gpio1_mode = GPIO_MODE_PWM</code></pre>
+            <pre><code>odrv0.config.gpio1_pwm_mapping.min = -25</code></pre>
+            <pre><code>odrv0.config.gpio1_pwm_mapping.max = 25</code></pre>
+            <p> The position where the motor starts is the zero position, you could also use an <a href="https://docs.odriverobotics.com/v/0.5.4/endstops.html" target="_blank" rel="noopener noreferrer">endstop to set a new zero position by using homing</a>.</p>
+            <pre><code>odrv0.save_configuration()</code></pre>
+            <pre><code>odrv0.reboot()</code></pre>
+            <br>
+            <p> If you want more options, such as motion planning, you can use the <a href="https://github.com/odriverobotics/ODrive/tree/master/Arduino/ODriveArduino" target="_blank" rel="noopener noreferrer">ODriveArduino library</a>.</p>
+            <br>
+        </div>
+        <div>
+            <h3> Arduino controller </h3>
+            <p> If you don't have an RC transmitter and receiver, you can use two Arduinos in combaniation with NRF24L01s and a joystick instead.</p>
+            <p> The servo library generates an RC PWM signal you can use as in input, you can download my code <a download href="code.zip" target="_blank" rel="noopener noreferrer">here</a>.</p>
+            <p> There is a small mistake in the schematic, make sure to use the written pin numbers because pin 13 is not correct in the schematic.</p>
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/7rcVeFFHcFM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <br><br>
+        </div>
+        <div>
+            <h3> Wiring diagram </h3>
+            <p> For this project I used a single axis ODESC. </p>
+            <img src="pinout.png" alt="not found" width="600px">
+            <p> These are the general schematics for the Arduino and RC receiver versions, make sure you have a common ground. </p>
+            <img src="generalarduinoschematic.png" alt="not found" width="750px">
+            <br>
+            <img src="generalreceiverschematic.png" alt="not found" width="750px">
+            <p> There are a few GPIO pins you can use for the RC PWM input, you can find the pinout <a href="https://docs.odriverobotics.com/v/0.5.4/pinout.html" target="_blank" rel="noopener noreferrer">here</a>.</p>
+            <p> You can also use an ODrive or a dual axis ODESC. When using a dual axis board, you could also have 2 spools of wire and depending on the motor rotation directions, the system can move horizontally and/or vertically.</p>
+            <br>
+        </div>
+        <a href="https://www.youtube.com/c/StijnsProjects" target="_blank" rel="noopener noreferrer"><img src="youtubebutton.png" alt="not found" style="height: 75px; margin-top: 10px;"></a>
+    </body>
+</html>
